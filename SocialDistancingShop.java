@@ -17,7 +17,7 @@ class outOfGridBoundsException extends Exception {
    }
 }
 public class SocialDistancingShop {
-
+   //noPeople is 20, max is 5 
    static int noPeople=20;
    static int frameX=400;
    static int frameY=500;

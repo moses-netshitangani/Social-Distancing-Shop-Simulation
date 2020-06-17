@@ -19,7 +19,7 @@ public class PeopleCounter {
       peopleLeft = 0;
       maxPeople = max;
          // Me
-      cap = new Semaphore(maxPeople);
+      cap = new Semaphore(maxPeople, true);     // To ensure that not more than maxPeople can be inside at one time 
       waiting = new Semaphore(1);
    }
 		
@@ -50,20 +50,21 @@ public class PeopleCounter {
 	
 	//getter
    // Me. Added synchronized to prevent data races when customers enter and leave
-   // Used semaphore to restrict entrance of customers to one at a time 
-   public synchronized void personArrived() throws InterruptedException {
-      waiting.acquire();
+   // Used semaphore to restrict entrance of customers to max allowed 
+   public void personArrived() throws InterruptedException {
+      ////waiting.acquire();
       peopleOutSide++;
-         
+      cap.acquire();
    }
 	
 	//update counters for a person entering the shop
    // I used a barrier semaphore to limit the number of customers that can enter
    public void personEntered() throws InterruptedException {
-      waiting.release(); 
-      cap.acquire();
+      ////waiting.release(); 
+      //cap.acquire();
       peopleOutSide--;
       peopleInside++;
+     
    }
 
 	//update counters for a person exiting the shop

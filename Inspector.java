@@ -43,23 +43,23 @@ public class Inspector extends Thread {
 	
    public void run() {
       int i=0;
-       String customersInShop ="";
-       while(!done) {
-          if (counter.getMax()<counter.getInside()) {
-             System.out.println("Inspector: VIOLATION !!!Too many people inside shop!!!");
-          }
-          checkPause();
+      String customersInShop ="";
+      while(!done) {
+         if (counter.getMax()<counter.getInside()) {
+            System.out.println("Inspector: VIOLATION !!!Too many people inside shop!!!");
+         }
+         checkPause();
        	
-          customersInShop ="";
-          for (i=0;i<max;i++){
+         customersInShop ="";
+         for (i=0;i<max;i++){
             if (customerLocations[i].inRoom()) {
-                String cust = " "+customerLocations[i].getX()+","+customerLocations[i].getY()+" ";
-                if (customersInShop.contains(cust))
-                    System.out.println("Inspector: SOCIAL DISTANCING VIOLATION at position "+cust );
-                else customersInShop+=cust;
-             }
-          }
-       }
+               String cust = " "+customerLocations[i].getX()+","+customerLocations[i].getY()+" ";
+               if (customersInShop.contains(cust))
+                  System.out.println("Inspector: SOCIAL DISTANCING VIOLATION at position "+cust );
+               else customersInShop+=cust;
+            }
+         }
+      }
    }
 	
 }

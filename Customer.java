@@ -99,7 +99,7 @@ public class Customer extends Thread {
       updateLocation();
       System.out.println("Thread "+this.ID + " entered shop at position: " + currentBlock.getX()  + " " +currentBlock.getY() );
       counter.personEntered(); //add to counter
-         sleep(movingSpeed/2);  //wait a bit
+      sleep(movingSpeed/2);  //wait a bit
    }
 	
 	//go to checkout counter

@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.util.Random;
 import java.util.concurrent.atomic.*;
 
+import java.util.concurrent.Semaphore;
+
 public class CustomerLocation  { // this is a separate class so don't have to access thread
 	
 //can protect with Atomic variables or with synchronized	
@@ -12,6 +14,7 @@ public class CustomerLocation  { // this is a separate class so don't have to ac
    private AtomicBoolean inRoom;
    private AtomicInteger x;
    private AtomicInteger y;
+  
 	
    CustomerLocation(int ID ) {
       Random rand = new Random();
@@ -25,13 +28,13 @@ public class CustomerLocation  { // this is a separate class so don't have to ac
 
 	
 	//setter
-   public  void  setX(int x) { this.x.set(x);}	
+   public void  setX(int x) {this.x.set(x);}	
 		
 	//setter
-   public   void  setY(int y) {	this.y.set(y);	}
+   public void  setY(int y) {	this.y.set(y);	}
 	
 	//setter
-   public  void setInRoom(boolean in) {
+   public void setInRoom(boolean in) {
       this.inRoom.set(in);
    }
 	//getter

@@ -15,6 +15,7 @@ public class ShopGrid {
    private final static int minY =5;//minimum y dimension
    // Me 
    private Semaphore entry = new Semaphore(1);
+   private int check = -1;
 	
 	
    ShopGrid() throws InterruptedException {
@@ -62,8 +63,9 @@ public class ShopGrid {
       return y;
    }
 
-   public GridBlock whereEntrance() throws InterruptedException { //hard coded entrance
-      return Blocks[getMaxX()/2][0];
+   public GridBlock whereEntrance() throws Exception{ //hard coded entrance
+      GridBlock entrance = Blocks[getMaxX()/2][0];
+      return entrance;
    }
 
 	//is a position a valid grid position?
@@ -75,16 +77,18 @@ public class ShopGrid {
 	
 	//called by customer when entering shop
    // I used a semaphore to let in only a single customer at a time through the entry 
-   public GridBlock enterShop() throws InterruptedException  {
-       entry.acquire();
+   public GridBlock enterShop() throws Exception  {
+      entry.acquire();
+      check = 0;
       GridBlock entrance = whereEntrance();
+      // System.out.println("ID of "+entrance.getID()+" is IN");
       return entrance;
    }
 		
 	//called when customer wants to move to a location in the shop
-   public GridBlock move(GridBlock currentBlock,int step_x, int step_y) throws InterruptedException {  
+   public GridBlock move(GridBlock currentBlock,int step_x, int step_y) throws Exception {  
    	//try to move in 
-   	    entry.release();
+       
       int c_x= currentBlock.getX();
       int c_y= currentBlock.getY();
    	
@@ -104,14 +108,20 @@ public class ShopGrid {
       GridBlock newBlock = Blocks[new_x][new_y];
    	//Me. This might not actually be checking to see if the block is occupied. Get it checked out. 
       if (newBlock.get())  {  //get successful because block not occupied 
+         if(check == 0 && currentBlock.getID() == whereEntrance().getID())
+         {
+            entry.release();
+            check = 1;
+         }
          currentBlock.release(); //must release current block
       }
       else {
          newBlock=currentBlock;
       		///Block occupied - giving up
       }
-      // Try to release the semaphore lock after moving
       
+      // Try to release the semaphore lock after moving
+      // Not working because this releases the semaphore each time it  runs and BEFORE actually returning (moving to new block)!!! 
       
       return newBlock;
    } 
@@ -119,6 +129,7 @@ public class ShopGrid {
 	//called by customer to exit the shop
    public void leaveShop(GridBlock currentBlock)   {
       currentBlock.release();
+      //entry.release();
    }
 
 }
