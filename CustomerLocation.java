@@ -7,6 +7,11 @@ import java.util.concurrent.atomic.*;
 import java.util.concurrent.Semaphore;
 
 public class CustomerLocation  { // this is a separate class so don't have to access thread
+
+/*
+      This class was already equipped with atomic variables by Michelle (luckily) so no further protection
+      was needed.
+*/
 	
 //can protect with Atomic variables or with synchronized	
    private final int ID; //total customers created

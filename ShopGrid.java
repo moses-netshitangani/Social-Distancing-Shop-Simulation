@@ -3,8 +3,15 @@
  
 package socialDistanceShopSampleSolution;
 
-// ME
+// An import I need
 import java.util.concurrent.Semaphore;
+
+/*
+      Used a binary semaphore to restrict entry through the entrance block.
+      Used a check variable to allow only those customers who called acquire() to also call release() and
+      let other customers enter.
+      The getters do not need protection and this helps with the livenness of the simulation.
+*/
 
 public class ShopGrid {
    private GridBlock [][] Blocks;
@@ -13,9 +20,8 @@ public class ShopGrid {
    public final int checkout_y;
    private final static int minX =5;//minimum x dimension
    private final static int minY =5;//minimum y dimension
-   // Me 
-   private Semaphore entry = new Semaphore(1);
-   private int check = -1;
+   private Semaphore entry = new Semaphore(1);     // A semaphore to allow only a single customer to enter at a time
+   private int check = -1;                                                   // A check variable I use to control which Customers can call release() on the semaphore 
 	
 	
    ShopGrid() throws InterruptedException {
@@ -64,8 +70,7 @@ public class ShopGrid {
    }
 
    public GridBlock whereEntrance() throws Exception{ //hard coded entrance
-      GridBlock entrance = Blocks[getMaxX()/2][0];
-      return entrance;
+      return Blocks[getMaxX()/2][0];
    }
 
 	//is a position a valid grid position?
@@ -75,20 +80,24 @@ public class ShopGrid {
       return true;
    }
 	
-	//called by customer when entering shop
-   // I used a semaphore to let in only a single customer at a time through the entry 
+	//called by customer when entering shop 
+   /*
+         Customer acquires a lock upon entering (only one customer can enter) and sets check to 0 - meaning they now have 
+         permission to call release() once on the entry semaphore, allowing another customer to enter.
+   */
    public GridBlock enterShop() throws Exception  {
       entry.acquire();
       check = 0;
       GridBlock entrance = whereEntrance();
-      // System.out.println("ID of "+entrance.getID()+" is IN");
       return entrance;
    }
 		
 	//called when customer wants to move to a location in the shop
+   /*
+         Only customers who have just entered are allowed to call release() on the semaphore, once.
+   */
    public GridBlock move(GridBlock currentBlock,int step_x, int step_y) throws Exception {  
    	//try to move in 
-       
       int c_x= currentBlock.getX();
       int c_y= currentBlock.getY();
    	
@@ -99,37 +108,38 @@ public class ShopGrid {
       if (!inGrid(new_x,new_y)) {
       	//Invalid move to outside shop - ignore
          return currentBlock;
-      	
       }
    
       if ((new_x==currentBlock.getX())&&(new_y==currentBlock.getY())) //not actually moving
          return currentBlock;
    	 
       GridBlock newBlock = Blocks[new_x][new_y];
-   	//Me. This might not actually be checking to see if the block is occupied. Get it checked out. 
+      
+   	//Customer cannot be allowed to move back to the entrance block - temporarily blocks other customers from entering
+      if(newBlock.getID() == whereEntrance().getID())
+      {
+         return currentBlock;
+      }
+      
       if (newBlock.get())  {  //get successful because block not occupied 
          if(check == 0 && currentBlock.getID() == whereEntrance().getID())
          {
-            entry.release();
+            entry.release();         // Customer has to let another customer enter as well
             check = 1;
          }
          currentBlock.release(); //must release current block
       }
       else {
          newBlock=currentBlock;
-      		///Block occupied - giving up
+      	  //Block occupied - giving up
       }
-      
-      // Try to release the semaphore lock after moving
-      // Not working because this releases the semaphore each time it  runs and BEFORE actually returning (moving to new block)!!! 
-      
+         
       return newBlock;
    } 
 	
 	//called by customer to exit the shop
    public void leaveShop(GridBlock currentBlock)   {
       currentBlock.release();
-      //entry.release();
    }
 
 }

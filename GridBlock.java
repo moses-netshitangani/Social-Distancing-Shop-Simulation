@@ -1,27 +1,29 @@
 package socialDistanceShopSampleSolution;
 
-// Me
-import java.util.concurrent.atomic.*; 
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.*;
 // GridBlock class to represent a block in the shop.
 
+/*
+      What I changed in this class was to check first if the isOccupied variable was true before
+      setting it to true in the get() method. I then used an atomic variable isOccupied to allow at most, 
+      a single thread to occupy a block.
+      
+      The getter methods were not synchronized since we wish to maintin liveliness of the threads.
+*/
+
 public class GridBlock {
-   // private boolean isOccupied;
-      // I commented out the isOccupied variable. Attempting to replace it with an AtomicBoolean variable
+   // Here I replaced the standard isOccupied variable with an atomic variable 
    private AtomicBoolean isOccupied; 
    private final boolean isExit; 
    private final boolean isCheckoutCounter;
    private int [] coords; // the coordinate of the block.
    private int ID; 
-	
    public static int classCounter=0;
     
 	
    GridBlock(boolean exitBlock, boolean checkoutBlock) throws InterruptedException {
       isExit=exitBlock;
       isCheckoutCounter=checkoutBlock;
-      // isOccupied= false;
-         // Me again with one line
       isOccupied = new AtomicBoolean(false); 
       ID=classCounter;
       classCounter++;
@@ -41,33 +43,34 @@ public class GridBlock {
       return coords[1];}
 	
 	//for customer to move to a block
-   //Me. I think we should check first to see if isOccupied is already true before we set it to true.!!!!!!!!!!!!!!!!!!!!!!!!
-   // I really may be on to something. Should head back to ShopGrid line 80 if forgot what i was doing  
-   public boolean get() throws Exception {
-      // isOccupied=true;
-      // return true;
-         // Me again with all lines below
-      
-      if(this.isOccupied.get() == true){
-         return false;}
-      else{
+   /*
+         The change I made here was to check first if isOccupied is already true, before setting It to true.
+   */
+   public boolean get() {
+      if(this.isOccupied.get()== true)
+      {
+         return false;
+      }
+      else
+      {
          this.isOccupied.set(true);
          return true;
-      }
-         
+      }   
    }
 		
 	//for customer to leave a block
+   /*
+         Does not need further protection since any block can only be occupied at most by a single customer
+   */
    public  void release() {
-      // isOccupied =false;
-         //Me again
       this.isOccupied.set(false); 
    }
 	
 	//getter
+   /*
+         Does not need further protection since this is a getter, same applies to subsequent methods
+   */
    public boolean occupied() {
-      // return isOccupied;
-         // Me again
       return isOccupied.get(); 
    }
 	
